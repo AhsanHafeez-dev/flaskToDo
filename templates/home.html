@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 50px;
+        }
+
+        .home-container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="home-container">
+            <h2 class="mb-4">Welcome to Your Dashboard</h2>
+            <p><strong>Email:</strong> {{ user_email }}</p>
+            <p><strong>Name:</strong> {{ user_name }}</p>
+            <p><strong>Phone:</strong> {{ user_phone }}</p>
+            <p><strong>Category:</strong> {{ user_category }}</p>
+            <hr>
+            <h3>Explore your tasks and projects here.</h3>
+            <!-- Add more content as per your application's requirements -->
+            
+            <form action="/logout" method="GET">
+                <button type="submit" class="btn btn-danger mt-3">Logout</button>
+            </form>
+
+
+            <button class="btn btn-primary mt-3" onclick="showUpdateForm()">Update Information</button>
+            <form action="/delete" method="POST">
+                <button type="submit" class="btn btn-danger mt-3">Delete Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Information Form -->
+    <div class="container mt-4" id="updateFormContainer" style="display: none;">
+        <div class="home-container">
+            <h2 class="mb-4">Update Your Information</h2>
+            <form action="/update" method="POST">
+                <div class="form-group">
+                    <label for="user_email">Email</label>
+                    <input type="email" class="form-control" id="user_email" name="email" value="{{ user_email }}"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="user_name">Name</label>
+                    <input type="text" class="form-control" id="user_name" name="name" value="{{ user_name }}"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="user_phone">Phone</label>
+                    <input type="tel" class="form-control" id="user_phone" name="phone" value="{{ user_phone }}"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="user_category">Category</label>
+                    <input type="text" class="form-control" id="user_category" name="category"
+                        value="{{ user_category }}" required>
+                </div>
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="hideUpdateForm()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showUpdateForm() {
+            document.getElementById('updateFormContainer').style.display = 'block';
+        }
+
+        function hideUpdateForm() {
+            document.getElementById('updateFormContainer').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

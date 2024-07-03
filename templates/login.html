@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 50px;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h2 class="text-center mb-4">Login</h2>
+            
+            <form action="/login" method="POST">
+                <!-- <div class="form-group">
+                    <label for="name">User Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div> -->
+                
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label>User Type:</label><br>
+                    <input type="radio" id="developer" name="category" value="developer">
+                    <label for="developer">Developer</label><br>
+                    <input type="radio" id="client" name="category" value="client">
+                    <label for="client">Client</label><br>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            <hr>
+            <p class="text-center">Don't have an account? <a href="/signup">Create Account</a></p>
+        </div>
+    </div>
+</body>
+</html>
