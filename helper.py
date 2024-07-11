@@ -3,11 +3,13 @@ import re
 import bcrypt
 from flask import Flask, jsonify, render_template, request
 from flask_pymongo import PyMongo
-from pymongo import MongoClient
+
 
 app = Flask(__name__)
+# 103.31.100.66
 app.config['MONGO_URI'] = "mongodb://localhost:27017/testing"
 db = PyMongo(app).db
+
 
 
 def validate_password(password):

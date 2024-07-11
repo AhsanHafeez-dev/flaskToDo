@@ -1,4 +1,6 @@
+from flasgger import Swagger
 from flask import Flask, jsonify, redirect, render_template, request, session
+
 from flask_session import Session
 from helper import (check_user_existance, delete_user, get_user, save_user,
                     update_user, validate_email, validate_name,
@@ -7,13 +9,19 @@ from helper import (check_user_existance, delete_user, get_user, save_user,
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "mongodb"
-# nknkjkjdfk
-
 Session(app)
+
+swagger = Swagger(app)
 
 @app.route("/")
 def index():
-    
+    """
+    Index Page
+    ---
+    responses:
+      200:
+        description: The home page or login page
+    """
     if "logged_in" in session and session["logged_in"]:
         user = get_user(session["email"], session.get("category", ""))
         return render_template("home.html", user_email=user["email"], user_name=user["name"], user_phone=user["phone"], user_category=user["category"])   
@@ -22,6 +30,29 @@ def index():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
+    """
+    User Login
+    ---
+    parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      - name: category
+        in: formData
+        type: string
+        required: false
+    responses:
+      200:
+        description: Redirects to the home page
+      400:
+        description: Invalid Email or Password
+    """
+    print("index")
     if request.method == "POST":
         user = initialize_user()
 
@@ -49,6 +80,36 @@ def login():
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
+    """
+    User Signup
+    ---
+    parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: name
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      - name: phone
+        in: formData
+        type: string
+        required: false
+      - name: category
+        in: formData
+        type: string
+        required: false
+    responses:
+      200:
+        description: Renders the login page
+      400:
+        description: Invalid Email, Name, or Password
+    """
     if request.method == "POST":
         user = initialize_user()
 
@@ -71,6 +132,15 @@ def signup():
 
 @app.route("/home")
 def home():
+    """
+    User Home
+    ---
+    responses:
+      200:
+        description: The home page
+      401:
+        description: Unauthorized access
+    """
     if "logged_in" in session and session["logged_in"]:
         user = get_user(session["email"], session.get("category", ""))
         
@@ -80,24 +150,63 @@ def home():
 
 @app.route("/logout", methods=["POST","GET"])
 def logout():
+    """
+    User Logout
+    ---
+    responses:
+      200:
+        description: Redirects to the home page
+    """
     session.clear()
-    
     return redirect("/home")
 
 
 @app.route("/update", methods=["POST"])
 def update():
-    password=get_user(session["email"])["password"]
+    """
+    Update User Information
+    ---
+    parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: name
+        in: formData
+        type: string
+        required: true
+      - name: phone
+        in: formData
+        type: string
+        required: false
+      - name: category
+        in: formData
+        type: string
+        required: false
+    responses:
+      200:
+        description: Updates the user information and renders the home page
+      400:
+        description: Invalid Input
+    """
+    password = get_user(session["email"])["password"]
     user = initialize_user()
-    user["password"]=password
+    user["password"] = password
     update_user(user, session["email"])
     session["email"] = user["email"]
 
     return render_template("home.html", user_email=user["email"], user_name=user["name"], user_phone=user["phone"], user_category=user["category"])
 
 
-@app.route("/delete",methods=["POST","GET"])
+@app.route("/delete", methods=["POST", "GET"])
 def delete():
+    """
+    Delete User
+    ---
+    responses:
+      200:
+        description: Deletes the user and renders the login page
+    """
     delete_user(session["email"])
     session.clear()
     return render_template("login.html")
