@@ -14,7 +14,7 @@ db = PyMongo(app).db
 
 def validate_password(password):
     return len(password)>=6
-
+ 
 #check wether username already exist or not
 def validate_name(name,category):
         
@@ -42,15 +42,17 @@ def encrypt_password(password):
     return hashed
 
 
-def verify_password(password,hash):
-    return bcrypt.checkpw(password.encode("utf-8"),hash)
+def verify_password(password,hash_password):
+    return bcrypt.checkpw(password.encode("utf-8"),hash_password)
 
 def check_user_existance(user):
     
     
-    tempchk=db.test1.find_one(user)
     
-    if tempchk:
+    print(user)
+    tempchk=db.test1.find_one( {"name":user["name"] , "email":user["email"] , "category" : user["category"]})
+    
+    if tempchk is not None and verify_password(user["password"],tempchk["password"]):
          
          return True
     
@@ -58,11 +60,12 @@ def check_user_existance(user):
     
     
 def save_user(user):
+     user["password"]=encrypt_password(user["password"])        
      db.test1.insert_one(user)
 
 def delete_user(email):
     
-    input("aioi")
+    
     db.test1.delete_one({"email":email})
 
     

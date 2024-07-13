@@ -1,15 +1,30 @@
 from flasgger import Swagger
-from flask import Flask, jsonify, redirect, render_template, request, session
+from flask import Flask, jsonify, redirect, render_template, request, session,make_response
 
 from flask_session import Session
 from helper import (check_user_existance, delete_user, get_user, save_user,
                     update_user, validate_email, validate_name,
                     validate_password)
-
+from flask_jwt_extended import JWTManager,create_access_token,jwt_required,get_jwt_identity
+from datetime import timedelta
 app = Flask(__name__)
+# created key using uuid package
+app.config["SECRET_KEY"]="ccc05e80c8fd4da78a006c67f34995d2"
+app.config["JWT_SECRET_KEY"]="ccc05e80c8fd4da78a006c67f34995d2"
+
+#for seconds
+# app.config["ACCESS_TOKEN_EXPIRES"]=timedelta(seconds=30)
+
+#for hours
+# app.config["ACCESS_TOKEN_EXPIRES"]=timedelta(hours=24)
+
+#for month
+app.config["ACCESS_TOKEN_EXPIRES"]=timedelta(days=30)
+
 app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "mongodb"
 Session(app)
+jwt=JWTManager(app)
 
 swagger = Swagger(app)
 
@@ -52,10 +67,10 @@ def login():
       400:
         description: Invalid Email or Password
     """
-    print("index")
+    
     if request.method == "POST":
+        
         user = initialize_user()
-
         email_is_valid = validate_email(user["email"])
         password_is_valid = validate_password(user["password"])
 
@@ -65,13 +80,17 @@ def login():
         if not password_is_valid:
             return render_template("error.html", message="Invalid Password")
         
-        user_data = get_user(user["email"], user["category"])
-        user_exist = check_user_existance(user_data)
+        
+        
+        user_exist = check_user_existance(user)
 
         if user_exist:
             session["logged_in"] = True
             session["email"] = user["email"]
-            return redirect("/home")
+            
+            access_token=create_access_token(identity=user["name"])
+            return jsonify(access_token=access_token),200
+            redirect("/home")      
         else:
             return render_template("error.html", message="Incorrect Email or password")
     
@@ -79,6 +98,7 @@ def login():
 
 
 @app.route("/signup", methods=["POST", "GET"])
+
 def signup():
     """
     User Signup
@@ -112,7 +132,7 @@ def signup():
     """
     if request.method == "POST":
         user = initialize_user()
-
+        
         email_is_valid = validate_email(user["email"])
         name_is_valid = validate_name(user["name"], user["category"])
         password_is_valid = validate_password(user["password"])
@@ -130,7 +150,8 @@ def signup():
     return render_template("signup.html")
 
 
-@app.route("/home")
+@app.route("/home",methods=["GET","POST"])
+@jwt_required
 def home():
     """
     User Home
@@ -141,6 +162,9 @@ def home():
       401:
         description: Unauthorized access
     """
+    print("home")
+    current_user = get_jwt_identity()
+    
     if "logged_in" in session and session["logged_in"]:
         user = get_user(session["email"], session.get("category", ""))
         
@@ -213,12 +237,15 @@ def delete():
 
 
 def initialize_user():
+    
     user = {}
     user["email"] = request.form.get("email")
+
     user["category"] = request.form.get("category")
     user["name"] = request.form.get("name", get_user(user["email"], user["category"]).get("name", ""))
     user["phone"] = request.form.get("phone", get_user(user["email"], user["category"]).get("phone", ""))
     user["password"] = request.form.get("password")
+
     return user
 
 if __name__ == '__main__':
